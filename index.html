@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Segmentación Blackboard</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background: #f5f6f7;
+    }
+    h1 { color: #2a4d8f; }
+    .bloque {
+      padding: 20px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .bloque.examenes { background: #fce4e4; }
+    .bloque.secretaria { background: #d4edda; }
+    .oculto { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Segmentación por curso Blackboard</h1>
+
+  <p>Se mostrará solo la pestaña de EXÁMENES solo si el estudiante pertenece a la titulación <code>VIU_2025_10_G009_AG</code>.  
+  </p>
+
+  <div id="bloques">
+    <div id="bloque-examenes" class="bloque examenes">
+      <h2>Apartado: Exámenes</h2>
+      <p>Visible <b>solo</b> si el usuario pertenece al curso indicado.</p>
+    </div>
+
+    <div id="bloque-secretaria" class="bloque secretaria">
+      <h2>Apartado: Secretaría</h2>
+      <p>Visible para todos los usuarios</b>.</p>
+    </div>
+  </div>
+
+  <div id="resultado"></div>
+
+  <script>
+  (async () => {
+    const userId = "_620099_1"; // PK1 USER > CAMBIAR PARA PROBAR OTRO DISTINTO
+    const url = `http://localhost:3000/api/aulas/${userId}`;
+    const resultado = document.getElementById("resultado");
+
+    resultado.innerHTML = "Consultando aulas en Blackboard...";
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`Error HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log("Datos recibidos:", data);
+
+      const cursos = Array.isArray(data.results) ? data.results : [];
+
+      // 🔍 Verifica si tiene el curso exacto "VIU_2025_10_G009_AG"
+      const pertenece = cursos.some(c =>
+        c.course && c.course.courseId === "VIU_2025_10_G009_AG"
+      );
+
+      console.log("¿Pertenece al curso VIU_2025_10_G009_AG?:", pertenece);
+
+      const bloqueExamenes = document.getElementById("bloque-examenes");
+      const bloqueSecretaria = document.getElementById("bloque-secretaria");
+
+      if (pertenece) {
+        console.log("VISIBIBLE SOLO SI EL USUARIO PERTENECE AL CURSO VIU_2025_10_G009_AG");
+        resultado.innerHTML = "VISIBIBLE SOLO SI EL USUARIO PERTENECE AL CURSO VIU_2025_10_G009_AG.";
+        bloqueExamenes.classList.remove("oculto");
+      } else {
+        console.log("VISIBLE PARA TODO USUARIO");
+        resultado.innerHTML = "VISIBLE PARA TODO USUARIO.";
+        bloqueExamenes.classList.add("oculto");
+        bloqueSecretaria.classList.remove("oculto");
+      }
+
+    } catch (err) {
+      console.error("Error al consultar proxy:", err);
+      resultado.innerHTML = "Error al consultar proxy. Revisa la consola.";
+    }
+  })();
+  </script>
+</body>
+</html>
