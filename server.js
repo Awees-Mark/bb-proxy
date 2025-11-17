@@ -8,8 +8,8 @@ app.use(express.json());
 
 // Configura tus credenciales de Blackboard
 const BB_BASE = "https://learn.universidadviu.com/learn/api/public/v1";
-const CLIENT_ID = "1d59ed57-5dd1-4c59-92a9-45a88029a6cf";
-const CLIENT_SECRET = "HIOZF8CRm3Ir92PmlKIsbeDZfq5PmthL";
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
 
 // Función para obtener token OAuth2
